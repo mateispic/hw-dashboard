@@ -14,6 +14,7 @@ export default async function Home({ searchParams }) {
 
   try {
     products = await getProducts({ source, search, sort });
+    console.log({ source, search, sort })
   } catch (e) {
     error = e.message;
   }

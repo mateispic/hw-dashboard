@@ -7,7 +7,7 @@ export const revalidate = 300;
 export default async function Home({ searchParams }) {
   const source = searchParams?.source || "all";
   const search = searchParams?.search || "";
-  const sort = searchParams?.sort || "created_at";
+  const sort = searchParams?.sort || "first_seen";
 
   let products = [];
   let error = null;
@@ -24,9 +24,10 @@ export default async function Home({ searchParams }) {
 
   const now = new Date();
   const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-  const newToday = products.filter(
-    (p) => new Date(p.created_at) > oneDayAgo
-  ).length;
+  const newToday = products.filter((p) => {
+    if (!p.first_seen) return false;
+    return new Date(p.first_seen) > oneDayAgo;
+  }).length;
 
   return (
     <div className={styles.page}>
@@ -83,7 +84,7 @@ export default async function Home({ searchParams }) {
 
             {/* Sort */}
             <select className={styles.select} name="sort" defaultValue={sort}>
-              <option value="created_at">Cele mai noi</option>
+              <option value="first_seen">Cele mai noi</option>
               <option value="title">Alfabetic</option>
               <option value="price">Preț</option>
             </select>
@@ -121,7 +122,7 @@ function FilterTab({ label, value, current, count, color }) {
   const active = current === value;
   return (
     <a
-      href={`/?source=${value}`}
+      href={`/?source=${value}&search=${search}&sort=${sort}`}
       className={`${active ? "tab-active" : ""}`}
       style={{
         display: "inline-flex",
